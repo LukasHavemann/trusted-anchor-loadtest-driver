@@ -16,6 +16,7 @@ class LoadTestTrustedAnchorSimulation extends Simulation {
 
   val httpProtocol: HttpProtocolBuilder = http
     .baseUrl("http://localhost:8080")
+    .shareConnections
 
   val request: TimeStampRequest = createRequest()
 
@@ -32,7 +33,6 @@ class LoadTestTrustedAnchorSimulation extends Simulation {
       false,
       ByteBuffer.allocate(4).putInt(1).array()
     )
-
     timeStampRequestGenerator.generate(TSPAlgorithms.SHA256, hashAsBytes)
   }
 
@@ -49,7 +49,8 @@ class LoadTestTrustedAnchorSimulation extends Simulation {
       .check(status.is(200)))
 
   setUp(
-    rfc3161RestApi.inject(rampUsers(50).during(5.seconds),
-      constantUsersPerSec(10).during(30.seconds))
+    rfc3161RestApi.inject(
+      rampUsers(250).during(15.seconds),
+      constantUsersPerSec(500).during(30.seconds))
       .protocols(httpProtocol))
 }
